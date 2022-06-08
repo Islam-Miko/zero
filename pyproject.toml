@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "zero"
+version = "0.1.0"
+description = "first project"
+authors = ["Islam-Miko"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+classy-fastapi = "^0.2.6"
+SQLAlchemy = "^1.4.36"
+asyncpg = "^0.25.0"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+alembic = "^1.7.7"
+uvicorn = {extras = ["standart"], version = "^0.17.6"}
+
+[tool.poetry.dev-dependencies]
+autopep8 = "^1.6.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
