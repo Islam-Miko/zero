@@ -12,6 +12,10 @@ asyncpg = "^0.25.0"
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 alembic = "^1.7.7"
 uvicorn = {extras = ["standart"], version = "^0.17.6"}
+sqlmodel = "^0.0.6"
+SQLAlchemy-Utils = "^0.38.3"
+pydantic = {extras = ["dotenv"], version = "^1.9.1"}
+sqlalchemy-stubs = "^0.4"
 
 [tool.poetry.dev-dependencies]
 autopep8 = "^1.6.0"
