@@ -1,18 +1,20 @@
 import asyncio
+import logging
+import os
 from logging.config import fileConfig
-
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
-from sqlalchemy.ext.asyncio import AsyncEngine
-from app.base.models import Base
-from app.users.models import *
+from sqlite3 import DatabaseError
 from alembic import context
+from app.base.models import Base
 from app.settings import Settings
+from app.users.models import *
+from sqlalchemy import engine_from_config, pool
+from sqlalchemy.ext.asyncio import AsyncEngine
+
 settings = Settings()
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-database_url = settings.database_url
+database_url = f"{settings.database_url}_test" if settings.testing else settings.database_url
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -30,7 +32,6 @@ config.set_main_option("sqlalchemy.url", database_url)
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
-
 def run_migrations_offline():
     """Run migrations in 'offline' mode.
 
@@ -43,6 +44,8 @@ def run_migrations_offline():
     script output.
 
     """
+    if os.environ.get("TESTING"):
+        raise DatabaseError("Not permitted!")
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
