@@ -1,20 +1,24 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.users.routes import router as users_router
+
+
 def get_application():
     app = FastAPI()
-    return app
-
-
-app = get_application()
-
-app.add_middleware(
+    app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+    return app
+
+
+app = get_application()
+
+app.include_router(users_router)
 
 
 @app.get("/")
