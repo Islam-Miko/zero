@@ -1,11 +1,7 @@
-from configparser import SectionProxy
-from datetime import datetime
-from app.users.models import User
-from app.base.repositories import SqlAlchemyRepository
 import pytest
-import pytest_asyncio
+from app.base.repositories import SqlAlchemyRepository
+from app.users.models import User
 from sqlalchemy.orm import Session
-from datetime import datetime
 
 pytestmark = pytest.mark.asyncio
 
@@ -48,4 +44,3 @@ async def test_repository_all(session: Session):
     await session.commit()
     count = await repo.all()
     assert len(count) == 3
-

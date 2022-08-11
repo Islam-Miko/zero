@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 router = APIRouter(prefix="/users")
 
 
-@router.get("/users/")
+@router.get("/")
 async def get_users():
     session = get_db_session()
     db = SqlAlchemyRepository(session=session(), model=User)
@@ -21,7 +21,7 @@ async def get_users():
     )
 
 
-@router.post("/users/")
+@router.post("/")
 async def create_user(data: UserSchema):
     session = get_db_session()()
     db = SqlAlchemyRepository(session=session, model=User)
