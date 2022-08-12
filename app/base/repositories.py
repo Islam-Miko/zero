@@ -1,30 +1,31 @@
 import abc
 from datetime import datetime
-from typing import Any
-from sqlalchemy.orm import Session
-from app.base.models import Base as Model
-from sqlalchemy.future import select
-from sqlalchemy.engine import ResultProxy
-from sqlalchemy.orm.exc import NoResultFound
+from typing import Any, Union
+
 from sqlalchemy import update
+from sqlalchemy.engine import ResultProxy
+from sqlalchemy.future import select
+from sqlalchemy.orm import Session
+from sqlalchemy.orm.exc import NoResultFound
+
+from app.base.models import Base as Model
 
 
 class ABCRepository(abc.ABC):
-
     @abc.abstractmethod
-    async def create(self, data: dict[str, Any])-> None:
+    async def create(self, **data) -> Any:
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def get(self, pk: Any)-> Any:
+    async def get(self, *args: int, **kwargs: int) -> Any:
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def delete(self, pk: Any)-> None:
+    async def delete(self, pk: Any) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def update(self, *args, **kwargs)-> Any:
+    async def update(self, pk: int, *args: int, **kwargs: int) -> Any:
         raise NotImplementedError
 
 
@@ -33,25 +34,21 @@ class SqlAlchemyRepository(ABCRepository):
         self.__session = session
         self.model = model
 
-    async def create(self, **data: dict[str, Any]) -> None:
+    async def create(self, **data) -> Any:
         instance = self.model(**data)
         self.__session.add(instance)
         await self.__session.flush()
         return instance
 
-    async def get(self, *args: Any, **kwargs: Any) -> Any:
+    async def get(self, *args: int, **kwargs: int) -> Any:
         try:
-            query = (
-                select(self.model)
-                .filter(*args, **kwargs)
-            )
+            query = select(self.model).filter(*args, **kwargs)
             result: ResultProxy = await self.__session.execute(query)
             return result.scalars().one()
         except NoResultFound:
-            raise #TODO create new Exception to catch in server.py
+            raise  # TODO create new Exception to catch in server.py
 
-        
-    async def delete(self, pk: Any)-> None:
+    async def delete(self, pk: int) -> None:
         try:
             query = (
                 update(self.model)
@@ -64,7 +61,9 @@ class SqlAlchemyRepository(ABCRepository):
         except NoResultFound:
             raise
 
-    async def update(self, pk: Any, **kwargs: Any)-> None:
+    async def update(
+        self, pk: int, *args: int, **kwargs: int
+    ) -> Union[tuple, None]:
         try:
             query = (
                 update(self.model)
@@ -77,13 +76,8 @@ class SqlAlchemyRepository(ABCRepository):
         except NoResultFound:
             raise
 
-    async def all(self, *args: Any, **kwargs: Any)-> Any:
-        query = (
-            select(
-                self.model
-            )
-            .filter(self.model.deleted_at.is_(None))
-        )
+    async def all(self, *args: int, **kwargs: int) -> list:
+        query = select(self.model).filter(self.model.deleted_at.is_(None))
         if args:
             query.filter(*args)
         result: ResultProxy = await self.__session.execute(query)

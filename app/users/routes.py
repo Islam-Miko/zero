@@ -1,9 +1,10 @@
+from fastapi import APIRouter
+from fastapi.responses import JSONResponse
+
 from app.base.repositories import SqlAlchemyRepository
 from app.settings import get_db_session
 from app.users.models import User
 from app.users.schemas import UserSchema
-from fastapi import APIRouter
-from fastapi.responses import JSONResponse
 
 router = APIRouter(prefix="/users")
 
@@ -16,8 +17,10 @@ async def get_users():
     return JSONResponse(
         status_code=200,
         content={
-            "data": list(map(lambda x: x.dict(), map(UserSchema.from_orm, all_users)))
-        }
+            "data": list(
+                map(lambda x: x.dict(), map(UserSchema.from_orm, all_users))
+            )
+        },
     )
 
 
@@ -28,8 +31,5 @@ async def create_user(data: UserSchema):
     created = await db.create(**data.dict())
     await session.commit()
     return JSONResponse(
-        status_code=201,
-        content={
-            "data": UserSchema.from_orm(created).dict()
-        }
+        status_code=201, content={"data": UserSchema.from_orm(created).dict()}
     )
