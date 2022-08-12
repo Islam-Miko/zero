@@ -13,3 +13,5 @@ Dockerfile
 docker-compose.yml
 _website*.json
 /vendor
+.pre-commit-config.yaml
+/__pycache__/

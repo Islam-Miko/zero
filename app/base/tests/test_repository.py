@@ -1,7 +1,8 @@
 import pytest
+from sqlalchemy.orm import Session
+
 from app.base.repositories import SqlAlchemyRepository
 from app.users.models import User
-from sqlalchemy.orm import Session
 
 pytestmark = pytest.mark.asyncio
 
@@ -11,7 +12,7 @@ async def test_repository_create(session: Session):
     data = {
         "first_name": "test_user",
         "last_name": "userofich",
-        "email": "testing@gmail.com"
+        "email": "testing@gmail.com",
     }
     created = await repo.create(**data)
     await session.commit()
@@ -31,16 +32,25 @@ async def test_repository_all(session: Session):
         {
             "first_name": "test_user",
             "last_name": "userofich",
-            "email": "testing@gmail.com"
+            "email": "testing@gmail.com",
         },
         {
             "first_name": "test_user2",
             "last_name": "userofich2",
-            "email": "testing2@gmail.com"
-        }
+            "email": "testing2@gmail.com",
+        },
     ]
     for item in data:
         await repo.create(**item)
     await session.commit()
     count = await repo.all()
     assert len(count) == 3
+
+
+async def test_repositry_delete(session: Session):
+    repo = SqlAlchemyRepository(session, User)
+    count = await repo.all()
+    assert len(count) > 0
+    await repo.delete(count[0].id)
+    after_delete = await repo.all()
+    assert len(count) != len(after_delete)

@@ -1,16 +1,16 @@
 """create user table
 
 Revision ID: 6dfad9f9077a
-Revises: 
+Revises:
 Create Date: 2022-07-28 22:49:17.135730
 
 """
-from alembic import op
 import sqlalchemy as sa
 import sqlalchemy_utils
+from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = '6dfad9f9077a'
+revision = "6dfad9f9077a"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -38,6 +38,4 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_table(
-        "users"
-    )
+    op.drop_table("users")

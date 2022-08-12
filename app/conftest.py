@@ -7,10 +7,12 @@ import pytest
 import pytest_asyncio
 from alembic.config import Config
 from sqlalchemy import text
-from app.settings import Settings, get_db_session
 from sqlalchemy.ext.asyncio import create_async_engine
 
+from app.settings import Settings, get_db_session
+
 logger = logging.getLogger(__name__)
+
 
 @pytest.fixture(scope="session")
 def event_loop():
@@ -37,18 +39,16 @@ async def session():
     await session.close()
 
 
-@pytest_asyncio.fixture(scope="session",autouse=True)
+@pytest_asyncio.fixture(scope="session", autouse=True)
 async def start_db():
     settings = Settings()
-    default_engine = create_async_engine(settings.database_url, isolation_level="AUTOCOMMIT")
+    default_engine = create_async_engine(
+        settings.database_url, isolation_level="AUTOCOMMIT"
+    )
     async with default_engine.connect() as conn:
         try:
             logging.info("zero_db_test")
-            await conn.execute(
-                text("DROP DATABASE IF EXISTS zero_db_test;")
-            )
-            await conn.execute(
-                text("CREATE DATABASE zero_db_test;")
-            )
+            await conn.execute(text("DROP DATABASE IF EXISTS zero_db_test;"))
+            await conn.execute(text("CREATE DATABASE zero_db_test;"))
         except Exception as e:
             logger.warning(e)

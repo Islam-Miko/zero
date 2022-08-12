@@ -2,7 +2,7 @@ FROM python:3.9.13-slim-buster as base
 RUN apt-get update \
     && apt-get install -y --no-install-recommends\
     xz-utils \
-    curl 
+    curl
 ENV POETRY_VERSION=1.1.13
 RUN curl -sSL https://install.python-poetry.org | python -
 ENV PATH /root/.local/bin:$PATH
