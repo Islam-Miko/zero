@@ -16,7 +16,7 @@ jobs:
         with:
           python-version: "3.9"
       - name: Install poetry
-        users: abatilo/actions-poetry@v2.1.3
+        uses: abatilo/actions-poetry@v2.1.3
         with:
           poetry-version: ${{ matrix.poetry-version }}
       - name: View poetry --help
