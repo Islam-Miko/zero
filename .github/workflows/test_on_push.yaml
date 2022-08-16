@@ -34,5 +34,6 @@ jobs:
         run: poetry install
       - name: Run tests
         env:
+          TESTING: TRUE
           DATABASE_URL: 'postgresql+asyncpg://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/zero_db_test'
         run: poetry run pytest .
