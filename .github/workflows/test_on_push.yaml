@@ -6,6 +6,14 @@ on:
 
 jobs:
   run_tests:
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: zero_db_test
+        ports: ['5432:5432']
     strategy:
       matrix:
         poetry-version: ["1.1.13"]
@@ -25,4 +33,6 @@ jobs:
       - name: Install Dependencies
         run: poetry install
       - name: Run tests
+        env:
+          DATABASE_URL: 'postgresql+asyncpg://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/zero_db_test'
         run: poetry run pytest .
