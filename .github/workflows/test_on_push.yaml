@@ -1,4 +1,4 @@
-name: CI first test
+name: RUn test build and Publish of Docker Hub
 on:
   push:
     branches:
@@ -26,6 +26,7 @@ jobs:
       - uses: actions/setup-python@v1
         with:
           python-version: "3.9"
+          cache: "poetry"
       - name: Install poetry
         uses: abatilo/actions-poetry@v2.1.3
         with:
@@ -37,3 +38,18 @@ jobs:
           TESTING: TRUE
           DATABASE_URL: 'postgresql+asyncpg://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/zero_db'
         run: poetry run pytest .
+  build_and_pub:
+    needs: [run_tests]
+    runs_on: [ubuntu-latest]
+    env:
+      LOGIN: ${{ secrets.DOCKER_LOGIN}}
+      PASSWORD: ${{ secrets.DOCKER_PASSWORD}}
+      NAME: ${{ secrets.DOCKER_REPO}}
+    steps:
+      - name: Login
+        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_LOGIN }} --password-stdin
+      - uses: actions/checkout@v3
+      - name: Build image
+        run: docker build -t $LOGIN/ISLAMIO:${GITHUB_REF:11} -f Dockerfile .
+      - name: Push image to docker.io
+        run: docker push $LOGIN:$NAME:${GITHUB_REF:11}
