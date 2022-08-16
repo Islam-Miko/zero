@@ -40,7 +40,7 @@ jobs:
         run: poetry run pytest .
   build_and_pub:
     needs: [run_tests]
-    runs_on: [ubuntu-latest]
+    runs-on: [ubuntu-latest]
     env:
       LOGIN: ${{ secrets.DOCKER_LOGIN}}
       PASSWORD: ${{ secrets.DOCKER_PASSWORD}}
