@@ -13,12 +13,12 @@ FROM base as prod-venv
 RUN python -m venv --copies /venv
 RUN . /venv/bin/activate && poetry install --no-dev
 
-FROM base as test
-RUN python -m venv --copies /venv
-RUN . /venv/bin/activate && poetry install
-COPY . ./
-ENV PATH /venv/bin:$PATH
-CMD ["pytest", "."]
+# FROM base as test
+# RUN python -m venv --copies /venv
+# RUN . /venv/bin/activate && poetry install
+# COPY . ./
+# ENV PATH /venv/bin:$PATH
+# CMD ["pytest", "."]
 
 
 FROM python:3.9.13-slim-buster as prod
