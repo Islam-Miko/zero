@@ -19,8 +19,7 @@ jobs:
         poetry-version: ["1.1.13"]
     env:
       TEST: zero-test
-      TESTING: TRUE
-      DATABASE_URL: 'postgresql+asyncpg://postgres:postgres@localhost:${{ jobs.services.postgres.ports[5432] }}/zero_db'
+
 
     runs-on: [ubuntu-latest]
     steps:
@@ -45,6 +44,9 @@ jobs:
       - name: Build test image
         run: docker build -t $TEST --target=test .
       - name: Run test
+        env:
+          TESTING: TRUE
+          DATABASE_URL: 'postgresql+asyncpg://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/zero_db'
         run: docker run $TEST
   build_and_pub:
     needs: [run_tests]
