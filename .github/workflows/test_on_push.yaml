@@ -47,7 +47,7 @@ jobs:
         env:
           TESTING: TRUE
           DATABASE_URL: 'postgresql+asyncpg://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/zero_db'
-        run: docker run $TEST
+        run: docker run $TEST -e DATABASE_URL=$DATABASE_URL
   build_and_pub:
     needs: [run_tests]
     runs-on: [ubuntu-latest]
