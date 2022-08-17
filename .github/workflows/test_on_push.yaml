@@ -1,8 +1,8 @@
-name: RUn test build and Publish of Docker Hub
+name: Run tests, Build image and push to DockerHub
 on:
-  push:
+  pull_request:
     branches:
-      - "*"
+      - "main"
 
 jobs:
   run_tests:
