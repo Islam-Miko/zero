@@ -42,10 +42,10 @@ jobs:
       #     DATABASE_URL: 'postgresql+asyncpg://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/zero_db'
       #   run: poetry run pytest .
       - name: Build test image
-        run: docker build -t $TEST --target=test .
         env:
           TESTING: TRUE
           DATABASE_URL: 'postgresql+asyncpg://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/zero_db'
+        run: docker build -t $TEST --target=test .
       - name: Run test
         run: docker run $TEST
   build_and_pub:
