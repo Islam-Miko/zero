@@ -51,4 +51,4 @@ jobs:
       - name: Build image
         run: docker build -t $LOGIN/$NAME:${GITHUB_REF:11}1 -f Dockerfile . --target=prod
       - name: Push image to docker.io
-        run: docker push $LOGIN/$NAME:${GITHUB_REF:11}1
+        run: docker push $LOGIN/$NAME:${GITHUB.SHA}
