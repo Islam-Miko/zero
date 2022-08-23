@@ -8,6 +8,10 @@ from sqlalchemy.orm import Session, sessionmaker
 class Settings(BaseSettings):
     database_url: str
     testing: bool = False
+    secret_key: str
+    signature_algo: str
+    access_token_lifetime: int
+    refresh_token_lifetime: int
 
     class Config:
         env_file = ".env"

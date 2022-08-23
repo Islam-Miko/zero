@@ -16,6 +16,8 @@ sqlmodel = "^0.0.6"
 SQLAlchemy-Utils = "^0.38.3"
 pydantic = {extras = ["dotenv"], version = "^1.9.1"}
 sqlalchemy-stubs = "^0.4"
+passlib = "^1.7.4"
+bcrypt = "^3.2.2"
 
 
 [tool.poetry.dev-dependencies]
