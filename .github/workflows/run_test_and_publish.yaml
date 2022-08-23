@@ -2,7 +2,7 @@ name: Run tests, Build image and push to DockerHub
 on:
   pull_request:
     types:
-      -closed
+      - closed
     branches:
       - "main"
 
