@@ -1,0 +1,46 @@
+name: Run test for pull_request and pushes
+on:
+  pull_request:
+    branches:
+      - "*"
+  push:
+    branches-ignore:
+      - "main"
+
+jobs:
+  run_tests:
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: zero_db
+        ports: ['5432:5432']
+    strategy:
+      matrix:
+        poetry-version: ["1.1.13"]
+    runs-on: [ubuntu-latest]
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v1
+        with:
+          python-version: "3.9"
+      - name: Install poetry
+        uses: abatilo/actions-poetry@v2.1.3
+        with:
+          poetry-version: ${{ matrix.poetry-version }}
+      - name: Install Dependencies
+        run: poetry install
+      - name: Run tests
+        env:
+          TESTING: TRUE
+          DATABASE_URL: 'postgresql+asyncpg://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/zero_db'
+          ACCESS_TOKEN_LIFETIME: 5
+          REFRESH_TOKEN_LIFETIME: 60
+          SIGNATURE_ALGO: ${{ secrets.SIGNATURE_ALGO }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        run: poetry run pytest .
