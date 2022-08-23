@@ -38,6 +38,10 @@ jobs:
         env:
           TESTING: TRUE
           DATABASE_URL: 'postgresql+asyncpg://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/zero_db'
+          ACCESS_TOKEN_LIFETIME: 5
+          REFRESH_TOKEN_LIFETIME: 60
+          SIGNATURE_ALGO: ${{ secrets.SIGNATURE_ALGO }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
         run: poetry run pytest .
   build_and_pub:
     needs: [run_tests]
