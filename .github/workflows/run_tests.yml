@@ -1,8 +1,5 @@
 name: Run test for pull_request and pushes
 on:
-  pull_request:
-    branches:
-      - "*"
   push:
     branches-ignore:
       - "main"
