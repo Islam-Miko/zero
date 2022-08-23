@@ -3,10 +3,11 @@ from datetime import datetime
 from typing import Any, Union
 
 from sqlalchemy import update
-from sqlalchemy.engine import ResultProxy
+from sqlalchemy.engine import Result, ResultProxy
 from sqlalchemy.future import select
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql import exists as origin_exists
 
 from app.base.models import Base as Model
 
@@ -82,3 +83,13 @@ class SqlAlchemyRepository(ABCRepository):
             query.filter(*args)
         result: ResultProxy = await self.__session.execute(query)
         return result.scalars().all()
+
+    async def get_or_none(self, *args):
+        query = select(self.model).filter(*args)
+        result: Result = await self.__session.execute(query)
+        return result.scalars().first()
+
+    async def exists(self, *args) -> bool:
+        query = origin_exists(self.model).where(*args).select()
+        result: Result = await self.__session.execute(query)
+        return result.scalar_one()
