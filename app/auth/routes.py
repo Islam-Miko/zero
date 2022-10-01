@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 
 from app import messages
+from app.auth.models import RefreshToken
 from app.auth.schemas import AuthorizationSchema, TokensSchema
 from app.auth.utils import (
     AuthenticationHandler,
@@ -19,11 +20,21 @@ async def generate_access_token(
     data: AuthorizationSchema,
     auth: AuthenticationHandler = Depends(get_auth_handler),
 ):
+    uow = SQLAUnitOfWork(refresh=RefreshToken)
     user = await auth.authorize(**data.dict())
-    access_token = await auth.generate_token(data={"user": user.email})
-    refresh_token = await auth.generate_token(
+    access_token, _ = await auth.generate_token(data={"user": user.email})
+    refresh_token, exp_at = await auth.generate_token(
         token_type="refresh", data={"user": user.id}
     )
+    _, key, _ = refresh_token.split(".")
+    async with uow:
+        refresh = await uow.refresh.get_or_none(  # type: ignore
+            RefreshToken.user_id == user.id
+        )
+        if refresh is not None:
+            await uow.refresh.delete(refresh.id)  # type: ignore
+        await uow.refresh.create(key=key, user_id=user.id, valid_until=exp_at)  # type: ignore
+        await uow.commit()
     return TokensSchema(access_token=access_token, refresh_token=refresh_token)
 
 
@@ -50,3 +61,15 @@ async def register_user(data: AuthorizationSchema):
     return JSONResponse(
         status_code=200, content={"message": messages.SUCCESSFULLY_REGISTERED}
     )
+
+
+@router.post(
+    "/refresh-token/",
+    response_model=TokensSchema,
+    response_model_include={"access_token"},
+)
+async def refresh_token(
+    data: TokensSchema, auth: AuthenticationHandler = Depends(get_auth_handler)
+):
+    access_token, _ = await auth.refresh_token(**data.dict())
+    return TokensSchema(access_token=access_token, refresh_token="")
