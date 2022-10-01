@@ -2,7 +2,9 @@ from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.authentication import AuthenticationError
+from starlette.middleware.authentication import AuthenticationMiddleware
 
+from app.auth.middleware import JWTAuthentication
 from app.auth.routes import router as auth_router
 from app.users.routes import router as users_router
 
@@ -16,18 +18,19 @@ def get_application():
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    app.add_middleware(AuthenticationMiddleware, backend=JWTAuthentication())
+
+    app.include_router(users_router)
+    app.include_router(auth_router)
     return app
 
 
 app = get_application()
 
-app.include_router(users_router)
-app.include_router(auth_router)
-
 
 @app.get("/")
 async def te_route(request: Request):
-    return {"status_code": 200, "message": "ok"}
+    return {"status_code": 200, "message": "ok", "user": str(request.user)}
 
 
 @app.get("/routes/")
