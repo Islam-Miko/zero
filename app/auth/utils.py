@@ -6,7 +6,10 @@ from jose import jwt
 from passlib.context import CryptContext
 from starlette.authentication import AuthenticationError
 
+from app import messages
+from app.auth.models import RefreshToken
 from app.base.uow import SQLAUnitOfWork
+from app.exceptions import InvalidTokenError
 from app.users.models import User
 from app.utils import get_settings
 
@@ -52,16 +55,34 @@ class AuthenticationHandler:
         encoded = jwt.encode(
             data, self.settings.secret_key, self.settings.signature_algo
         )
-        return encoded
+        return encoded, expires_at
 
-    async def refresh_token(self, refresh_token: str) -> str:
-        # payload = jwt.decode(
-        #     refresh_token,
-        #     self.settings.signature_algo,
-        #     options={"verify_exp": False},
-        # )
-        pass
-        # TODO implement refresh token rotation
+    async def refresh_token(
+        self, access_token: str, refresh_token: str
+    ) -> tuple[str, float]:
+        uow = SQLAUnitOfWork(refresh=RefreshToken)
+        payload = jwt.decode(
+            access_token,
+            self.settings.secret_key,
+            options={"verify_exp": False},
+        )
+        _, key, _ = refresh_token.split(".")
+        async with uow:
+            instance = await uow.refresh.get(RefreshToken.key == key)  # type: ignore
+        if datetime.now() > datetime.fromtimestamp(instance.valid_until):
+            raise InvalidTokenError(messages.EXPIRED_TOKEN)
+
+        expires_at = datetime.timestamp(
+            datetime.now()
+            + timedelta(minutes=self.settings.access_token_lifetime)
+        )
+        payload.update(exp=expires_at)
+        encoded = jwt.encode(
+            payload,
+            self.settings.secret_key,
+            self.settings.signature_algo,
+        )
+        return encoded, expires_at
 
 
 @lru_cache
