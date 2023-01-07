@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Iterable, Mapping
 
 from sqlalchemy.engine.result import Result
 
@@ -14,7 +15,7 @@ class AbstractUnitOfWork(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def __aexit__(self, *args):
+    async def __aexit__(self, *args: Iterable):
         raise NotImplementedError
 
     @abstractmethod
@@ -27,7 +28,7 @@ class AbstractUnitOfWork(ABC):
 
 
 class SQLAUnitOfWork(AbstractUnitOfWork):
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Mapping) -> None:
         self.__session_factory = Session
         self.__init_kwargs = kwargs
 
@@ -37,7 +38,7 @@ class SQLAUnitOfWork(AbstractUnitOfWork):
             repo = SqlAlchemyRepository(self.__session, model)
             setattr(self, key, repo)
 
-    async def __aexit__(self, *args):
+    async def __aexit__(self, *args: Iterable):
         await self.__session.close()
 
     async def commit(self):
