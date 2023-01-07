@@ -4,6 +4,7 @@ import os
 import tempfile
 
 import alembic
+import httpx
 import psycopg2
 import pytest
 import pytest_asyncio
@@ -11,6 +12,8 @@ import yaml
 from alembic.config import Config
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
+
+from .server import get_application
 
 logger = logging.getLogger(__name__)
 
@@ -128,3 +131,10 @@ async def db_engine(
     default_engine = create_async_engine(get_database_url)
 
     yield default_engine
+
+
+@pytest_asyncio.fixture
+async def client():
+    app = get_application()
+    async with httpx.AsyncClient(app=app, base_url="http://test") as client:
+        yield client
